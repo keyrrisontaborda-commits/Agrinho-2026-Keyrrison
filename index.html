@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Projetos - Agrinho</title>
+    <!-- Tailwind CSS para estilização rápida e moderna -->
+    <script src="https://jsdelivr.net"></script>
+    <style>
+        /* Estilos customizados simples */
+        .status-valido { color: #16a34a; font-weight: bold; }
+        .status-invalido { color: #dc2626; font-weight: bold; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans min-h-screen flex flex-col items-center p-6">
+
+    <!-- Cabeçalho Principal -->
+    <header class="text-center my-6 max-w-2xl">
+        <h1 class="text-3xl font-extrabold text-green-700 tracking-tight">Portal de Projetos Agrinho</h1>
+        <p class="text-gray-600 mt-2">Tema Oficial: <span class="italic font-medium">"Campo e Cidade: Conexões que transformam"</span></p>
+    </header>
+
+    <main class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+        
+        <!-- Formulário de Inscrição -->
+        <section class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Nova Inscrição</h2>
+            <form id="formAgrinho" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Título do Projeto</label>
+                    <input type="text" id="titulo" required placeholder="Ex: O Alimento que une o campo e a cidade" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Nome do Aluno / Autor</label>
+                    <input type="text" id="autor" required placeholder="Ex: Ana Silva (5º Ano)" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Categoria</label>
+                    <select id="categoria" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="Desenho">Desenho</option>
+                        <option value="Redação">Redação</option>
+                        <option value="Robótica">Robótica / Maquete</option>
+                        <option value="Relato Pedagógico">Relato Pedagógico</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Resumo / Descrição</label>
+                    <textarea id="descricao" rows="3" required placeholder="Descreva como o seu projeto conecta o campo e a cidade..." 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-4 rounded-lg transition duration-200 cursor-pointer">
+                    Validar e Inscrever Projeto
+                </button>
+            </form>
+        </section>
+
+        <!-- Lista de Projetos Avaliados -->
+        <section class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+            <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Projetos Triados</h2>
+            <div id="listaProjetos" class="space-y-4 overflow-y-auto max-h-[420px] flex-1 pr-1 text-gray-500 text-sm italic">
+                Nenhum projeto cadastrado no momento.
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Lógica do Sistema em JavaScript -->
+    <script>
+        // Palavras-chave obrigatórias baseadas no tema oficial do Agrinho
+        const palavrasChave = ["campo", "cidade", "conexao", "conexão", "agro", "sustentabilidade", "transformacao", "transformação", "alimento", "tecnologia"];
+
+        const form = document.getElementById('formAgrinho');
+        const listaProjetos = document.getElementById('listaProjetos');
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault(); // Impede a página de recarregar
+
+            // Captura os valores digitados pelo usuário
+            const titulo = document.getElementById('titulo').value;
+            const autor = document.getElementById('autor').value;
+            const categoria = document.getElementById('categoria').value;
+            const descricao = document.getElementById('descricao').value;
+
+            // Transforma o texto em minúsculo para facilitar a busca de palavras-chave
+            const textoAnalise = (titulo + " " + descricao).toLowerCase();
+            
+            // Validação do tema (verifica se possui alguma palavra-chave)
+            const valido = palavrasChave.some(palavra => textoAnalise.includes(palavra));
+
+            // Remove a mensagem padrão de "Nenhum projeto" se for o primeiro
+            if (listaProjetos.innerHTML.includes("Nenhum projeto cadastrado")) {
+                listaProjetos.innerHTML = "";
+            }
+
+            // Define o layout do resultado com base na validação
+            const statusTexto = valido ? "✓ Tema Válido (Aprovado)" : "✗ Fora do Tema (Ajustar)";
+            const statusClasse = valido ? "status-valido" : "status-invalido";
+
+            // Cria o elemento visual do card do projeto
+            const cardProjeto = document.createElement('div');
+            cardProjeto.className = "p-4 border rounded-xl bg-gray-50 border-gray-200 relative";
+            cardProjeto.innerHTML = `
+                <h3 class="font-bold text-gray-900">${titulo}</h3>
+                <p class="text-xs text-gray-500 mt-0.5">Por: ${autor} | Categoria: <strong>${categoria}</strong></p>
+                <p class="text-sm text-gray-700 mt-2">${descricao}</p>
+                <div class="mt-3 text-xs ${statusClasse}">
+                    ${statusTexto}
+                </div>
+            `;
+
+            // Adiciona o novo card no topo da lista e limpa os campos do formulário
+            listaProjetos.prepend(cardProjeto);
+            form.reset();
+        });
+    </script>
+</body>
+</html>
